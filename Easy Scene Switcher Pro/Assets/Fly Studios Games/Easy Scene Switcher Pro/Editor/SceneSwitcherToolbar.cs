@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -22,6 +23,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		#region Constants
 		private const string SourcePrefKey = "FlyStudiosGames.EasySceneSwitcherPro.Toolbar.SceneSource";
 		private const string ToolbarEnabledPrefKey = "FlyStudiosGames.EasySceneSwitcherPro.Toolbar.Enabled";
+		private const string HideReadOnlyPrefKey = "FlyStudiosGames.EasySceneSwitcherPro.HideReadOnlyScenes";
 		private const string RootFieldName = "m_Root";
 		private const string ContainerName = "EasySceneSwitcherToolbarContainer";
 		private const float DefaultVerticalOffset = 1f;
@@ -60,6 +62,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		private static IMGUIContainer _toolbarContainer;
 		private static bool _isDirty = true;
 		private static bool _isToolbarEnabled = true;
+		private static bool _hideReadOnlyScenes;
 		private static SceneSource _sceneSource;
 		private static float _scenePopupWidth = 110f;
 		#endregion
@@ -102,6 +105,22 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			RemoveInjectedToolbarContainer();
 			#endif
 		}
+
+		[MenuItem("Tools/Easy Scene Switcher Pro/Settings/Hide Read-Only Scenes", true)]
+		private static bool ValidateToggleHideReadOnlyScenes()
+		{
+			_hideReadOnlyScenes = EditorPrefs.GetBool(HideReadOnlyPrefKey, false);
+			Menu.SetChecked("Tools/Easy Scene Switcher Pro/Settings/Hide Read-Only Scenes", _hideReadOnlyScenes);
+			return true;
+		}
+
+		[MenuItem("Tools/Easy Scene Switcher Pro/Settings/Hide Read-Only Scenes", priority = 102)]
+		private static void ToggleHideReadOnlyScenes()
+		{
+			_hideReadOnlyScenes = !_hideReadOnlyScenes;
+			SavePreferences();
+			MarkDirty();
+		}
 		#endregion
 
 		#region Types
@@ -116,6 +135,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			public string Name;
 			public string Path;
 			public bool IsMissing;
+			public bool IsReadOnly;
 		}
 		#endregion
 
@@ -227,10 +247,12 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			for (int index = 0; index < SceneCache.Count; index++)
 			{
 				SceneItem scene = SceneCache[index];
-				string title = scene.IsMissing ? $"{scene.Name} (Deleted)" : scene.Name;
+				string title = scene.IsMissing
+					? $"{scene.Name} (Deleted)"
+					: scene.IsReadOnly ? $"{scene.Name} (Locked)" : scene.Name;
 				bool isCurrent = index == currentIndex;
 
-				if (scene.IsMissing)
+				if (scene.IsMissing || scene.IsReadOnly)
 				{
 					menu.AddDisabledItem(new GUIContent(title), isCurrent);
 					continue;
@@ -444,7 +466,9 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 
 			int currentIndex = GetActiveSceneIndex();
 			string[] sceneNames = SceneCache
-				.Select(scene => scene.IsMissing ? $"{scene.Name} (Deleted)" : scene.Name)
+				.Select(scene => scene.IsMissing
+					? $"{scene.Name} (Deleted)"
+					: scene.IsReadOnly ? $"{scene.Name} (Locked)" : scene.Name)
 				.ToArray();
 			int shownIndex = Mathf.Clamp(currentIndex, 0, sceneNames.Length - 1);
 
@@ -459,6 +483,12 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			if (SceneCache[newIndex].IsMissing)
 			{
 				ShowToolbarNotification("Selected scene is missing (Deleted). Remove it from Build Settings.");
+				return;
+			}
+
+			if (SceneCache[newIndex].IsReadOnly)
+			{
+				ShowToolbarNotification("Selected scene is read-only (Locked).");
 				return;
 			}
 
@@ -527,6 +557,13 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		#region Data
 		private static void RefreshSceneCacheIfNeeded()
 		{
+			bool prefValue = EditorPrefs.GetBool(HideReadOnlyPrefKey, false);
+			if (prefValue != _hideReadOnlyScenes)
+			{
+				_hideReadOnlyScenes = prefValue;
+				_isDirty = true;
+			}
+
 			if (!_isDirty)
 				return;
 
@@ -541,11 +578,17 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 				if (string.IsNullOrEmpty(scenePath))
 					continue;
 
+				bool isMissing = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) == null;
+				bool isReadOnly = !isMissing && IsSceneReadOnly(scenePath);
+				if (_hideReadOnlyScenes && isReadOnly)
+					continue;
+
 				SceneCache.Add(new SceneItem
 				{
 					Path = scenePath,
 					Name = System.IO.Path.GetFileNameWithoutExtension(scenePath),
-					IsMissing = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) == null
+					IsMissing = isMissing,
+					IsReadOnly = isReadOnly
 				});
 			}
 
@@ -589,6 +632,31 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 				toolbarWindow.ShowNotification(new GUIContent(message));
 		}
 
+		private static bool IsSceneReadOnly(string assetPath)
+		{
+			if (string.IsNullOrEmpty(assetPath))
+				return false;
+
+			try
+			{
+				bool isLockedByProvider = !AssetDatabase.IsOpenForEdit(assetPath, StatusQueryOptions.UseCachedIfPossible);
+
+				string projectRoot = Directory.GetParent(Application.dataPath).FullName;
+				string absolutePath = Path.GetFullPath(Path.Combine(projectRoot, assetPath));
+
+				if (!File.Exists(absolutePath))
+					return isLockedByProvider;
+
+				FileAttributes attributes = File.GetAttributes(absolutePath);
+				bool hasReadOnlyAttribute = (attributes & FileAttributes.ReadOnly) != 0;
+				return isLockedByProvider || hasReadOnlyAttribute;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		private static void LoadPreferences()
 		{
 			int value = EditorPrefs.GetInt(SourcePrefKey, 0);
@@ -597,12 +665,14 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 
 			_sceneSource = (SceneSource)value;
 			_isToolbarEnabled = EditorPrefs.GetBool(ToolbarEnabledPrefKey, true);
+			_hideReadOnlyScenes = EditorPrefs.GetBool(HideReadOnlyPrefKey, false);
 		}
 
 		private static void SavePreferences()
 		{
 			EditorPrefs.SetInt(SourcePrefKey, (int)_sceneSource);
 			EditorPrefs.SetBool(ToolbarEnabledPrefKey, _isToolbarEnabled);
+			EditorPrefs.SetBool(HideReadOnlyPrefKey, _hideReadOnlyScenes);
 		}
 		#endregion
 	}

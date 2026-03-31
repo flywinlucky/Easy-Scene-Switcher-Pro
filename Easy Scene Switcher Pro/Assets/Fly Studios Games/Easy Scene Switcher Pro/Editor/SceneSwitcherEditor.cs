@@ -16,8 +16,16 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 	{
 		#region Constants
 		private const string SourcePrefKey = "FlyStudiosGames.EasySceneSwitcherPro.SceneSource";
+		private const string HideReadOnlyPrefKey = "FlyStudiosGames.EasySceneSwitcherPro.HideReadOnlyScenes";
+		private const string FavoriteScenesPrefKey = "FlyStudiosGames.EasySceneSwitcherPro.FavoriteScenes";
+		private const string RecentScenesPrefKey = "FlyStudiosGames.EasySceneSwitcherPro.RecentScenes";
+		private const string RememberStartupScenePrefKey = "FlyStudiosGames.EasySceneSwitcherPro.RememberStartupScene";
+		private const string SetActiveAfterAdditivePrefKey = "FlyStudiosGames.EasySceneSwitcherPro.SetActiveAfterAdditive";
+		private const string StartupScenePathPrefKey = "FlyStudiosGames.EasySceneSwitcherPro.StartupScenePath";
+		private const string PendingStartupRestorePrefKey = "FlyStudiosGames.EasySceneSwitcherPro.PendingStartupRestore";
 		private const string CompanyName = "Fly Studios Games";
 		private const string AssetStoreStoreUrl = "https://assetstore.unity.com/publishers/56140";
+		private const int MaxRecentScenes = 20;
 		#endregion
 
 		#region GUI Content
@@ -35,7 +43,16 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		private static string _searchText = string.Empty;
 		private static bool _isDirty = true;
 		private static SceneSource _sceneSource;
+		private static bool _hideReadOnlyScenes;
+		private static bool _rememberStartupScene;
+		private static bool _setActiveAfterAdditive;
+		private static string _startupScenePath = string.Empty;
+		private static bool _pendingStartupRestore;
 		private static EasySceneSwitcherWindow _window;
+		private static GUIContent _playSceneContent;
+		private static GUIContent _readOnlyContent;
+		private static readonly HashSet<string> FavoriteScenes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		private static readonly List<string> RecentScenes = new List<string>();
 		#endregion
 
 		#region Types
@@ -52,6 +69,8 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			public bool IsInBuildSettings;
 			public bool IsEnabledInBuildSettings;
 			public bool IsMissing;
+			public bool IsReadOnly;
+			public bool IsFavorite;
 		}
 		#endregion
 
@@ -70,11 +89,13 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		private void OnEnable()
 		{
 			_window = this;
+			EnsureGuiContentInitialized();
 			LoadPreferences();
 			MarkDirty();
 
 			EditorBuildSettings.sceneListChanged += MarkDirty;
 			EditorApplication.projectChanged += MarkDirty;
+			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 		}
 
 		private void OnDisable()
@@ -84,6 +105,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 
 			EditorBuildSettings.sceneListChanged -= MarkDirty;
 			EditorApplication.projectChanged -= MarkDirty;
+			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 		}
 
 		private void OnGUI()
@@ -92,18 +114,22 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			if (_window == null)
 				_window = this;
 
+			EnsureGuiContentInitialized();
+			SyncHideReadOnlyPreference();
+
 			RefreshSceneCacheIfNeeded();
 			bool isLockedInPlayMode = EditorApplication.isPlayingOrWillChangePlaymode;
+			bool compact = _window != null && _window.position.width < 420f;
 
 			using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
 			{
 				DrawHeader();
-				DrawToolbar();
+				DrawToolbar(compact);
 
 				if (isLockedInPlayMode)
 					EditorGUILayout.HelpBox("In Play Mode, scene switching and delete are disabled. You can still ping scene assets.", MessageType.Warning);
 
-				DrawSceneList(compact: false);
+				DrawSceneList(compact);
 				GUILayout.FlexibleSpace();
 				DrawFooterBranding();
 			}
@@ -115,6 +141,9 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		{
 			using (new EditorGUILayout.HorizontalScope())
 			{
+				GUILayout.Label($"Favorites: {FavoriteScenes.Count}", EditorStyles.miniLabel);
+				GUILayout.Space(8f);
+				GUILayout.Label($"Recent: {RecentScenes.Count}", EditorStyles.miniLabel);
 				GUILayout.FlexibleSpace();
 				GUILayout.Label($"Scenes: {SceneCache.Count}", EditorStyles.miniLabel);
 			}
@@ -122,7 +151,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			EditorGUILayout.Space(2f);
 		}
 
-		private static void DrawToolbar()
+		private static void DrawToolbar(bool compact)
 		{
 			using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
 			{
@@ -137,7 +166,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 						MarkDirty();
 					}
 
-					if (GUILayout.Button("Refresh", GUILayout.Width(74f)))
+					if (GUILayout.Button("Refresh", GUILayout.Width(compact ? 64f : 74f)))
 					{
 						MarkDirty();
 						RefreshSceneCacheIfNeeded(force: true);
@@ -149,8 +178,24 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 					EditorGUILayout.LabelField("Search", GUILayout.Width(52f));
 					_searchText = EditorGUILayout.TextField(_searchText);
 
-					if (GUILayout.Button("Clear", GUILayout.Width(46f)))
+					if (GUILayout.Button("Clear", GUILayout.Width(compact ? 42f : 46f)))
 						_searchText = string.Empty;
+				}
+
+				using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+				{
+					EditorGUI.BeginChangeCheck();
+					bool hideReadOnly = EditorGUILayout.ToggleLeft(new GUIContent("Hide Read-Only Scenes", "Hide scenes with read-only file attribute"), _hideReadOnlyScenes);
+					bool rememberStartup = EditorGUILayout.ToggleLeft(new GUIContent("Remember Startup Scene", "Return to startup scene after Play from Scene"), _rememberStartupScene);
+					bool setActiveAfterAdditive = EditorGUILayout.ToggleLeft(new GUIContent("Set Active After Additive", "Set newly loaded additive scene as active"), _setActiveAfterAdditive);
+					if (EditorGUI.EndChangeCheck())
+					{
+						_hideReadOnlyScenes = hideReadOnly;
+						_rememberStartupScene = rememberStartup;
+						_setActiveAfterAdditive = setActiveAfterAdditive;
+						SavePreferences();
+						MarkDirty();
+					}
 				}
 			}
 		}
@@ -164,6 +209,13 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 				filteredScenes = filteredScenes.Where(scene => ContainsIgnoreCase(scene.SceneName, _searchText));
 
 			List<SceneEntry> sceneList = filteredScenes.ToList();
+			HashSet<string> recentLookup = new HashSet<string>(RecentScenes, StringComparer.OrdinalIgnoreCase);
+			sceneList = sceneList
+				.OrderByDescending(scene => scene.IsFavorite)
+				.ThenByDescending(scene => recentLookup.Contains(scene.FilePath))
+				.ThenBy(scene => scene.SceneName, StringComparer.OrdinalIgnoreCase)
+				.ToList();
+
 			if (sceneList.Count == 0)
 			{
 				EditorGUILayout.HelpBox("No scenes found for the selected source.", MessageType.Info);
@@ -182,11 +234,25 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			{
 				using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
 				{
+					bool wasFavorite = scene.IsFavorite;
+					bool isFavorite = GUILayout.Toggle(wasFavorite, wasFavorite ? "★" : "☆", EditorStyles.miniButton, GUILayout.Width(22f));
+					if (isFavorite != wasFavorite)
+						SetFavorite(scene.FilePath, isFavorite);
+
 					string status = GetSceneStatus(scene.FilePath);
+					bool isRecent = recentLookup.Contains(scene.FilePath);
 					string sceneDisplayName = scene.IsMissing ? $"{scene.SceneName} (Deleted)" : scene.SceneName;
-					string label = string.IsNullOrEmpty(status) ? sceneDisplayName : $"[{status}] {sceneDisplayName}";
+					string recentPrefix = isRecent ? "[Recent] " : string.Empty;
+					string label = string.IsNullOrEmpty(status)
+						? $"{recentPrefix}{sceneDisplayName}"
+						: $"[{status}] {recentPrefix}{sceneDisplayName}";
+					bool isReadOnlyScene = scene.IsReadOnly && !scene.IsMissing;
 
 					GUILayout.Label(new GUIContent(label, scene.FilePath), EditorStyles.label);
+
+					if (isReadOnlyScene)
+						GUILayout.Label(new GUIContent(_readOnlyContent.image, "Read-only scene"), GUILayout.Width(18f), GUILayout.Height(16f));
+
 					GUILayout.FlexibleSpace();
 
 					if (_sceneSource == SceneSource.AllProject && scene.IsInBuildSettings)
@@ -198,10 +264,16 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 					if (GUILayout.Button("Ping", GUILayout.Width(42f)))
 						PingSceneAsset(scene.FilePath);
 
-					using (new EditorGUI.DisabledScope(isLockedInPlayMode || scene.IsMissing))
+					using (new EditorGUI.DisabledScope(isLockedInPlayMode || scene.IsMissing || isReadOnlyScene))
 					{
+						if (GUILayout.Button(compact ? new GUIContent(_playSceneContent.image, "Play from this scene") : new GUIContent(_playSceneContent.image, " Play"), GUILayout.Width(compact ? 24f : 46f)))
+							PlayFromScene(scene.FilePath);
+
 						if (GUILayout.Button("Load", GUILayout.Width(44f)))
-							OpenScene(scene.FilePath);
+							OpenScene(scene.FilePath, OpenSceneMode.Single);
+
+						if (GUILayout.Button(compact ? "+" : "Add", GUILayout.Width(compact ? 24f : 40f)))
+							OpenScene(scene.FilePath, OpenSceneMode.Additive);
 
 						if (!compact && GUILayout.Button("Delete", GUILayout.Width(55f)))
 							DeleteScene(scene.FilePath);
@@ -247,10 +319,17 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		#endregion
 
 		#region Scene Operations
-		private static void OpenScene(string path)
+		private static void OpenScene(string path, OpenSceneMode mode)
 		{
 			if (string.IsNullOrEmpty(path))
 				return;
+
+			if (IsSceneReadOnly(path))
+			{
+				if (_window != null)
+					_window.ShowNotification(new GUIContent("Scene is read-only and cannot be opened."));
+				return;
+			}
 
 			if (EditorApplication.isPlayingOrWillChangePlaymode)
 			{
@@ -259,10 +338,95 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 				return;
 			}
 
+			if (mode == OpenSceneMode.Single && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+				return;
+
+			EditorSceneManager.OpenScene(path, mode);
+			RegisterRecent(path);
+
+			if (mode == OpenSceneMode.Additive && _setActiveAfterAdditive)
+			{
+				Scene loadedScene = SceneManager.GetSceneByPath(path);
+				if (loadedScene.IsValid() && loadedScene.isLoaded)
+					SceneManager.SetActiveScene(loadedScene);
+			}
+		}
+
+		private static void PlayFromScene(string path)
+		{
+			if (string.IsNullOrEmpty(path))
+				return;
+
+			if (EditorApplication.isPlayingOrWillChangePlaymode)
+			{
+				if (_window != null)
+					_window.ShowNotification(new GUIContent("Already in Play Mode."));
+				return;
+			}
+
+			if (IsSceneReadOnly(path))
+			{
+				if (_window != null)
+					_window.ShowNotification(new GUIContent("Scene is read-only and cannot be opened."));
+				return;
+			}
+
+			if (AssetDatabase.LoadAssetAtPath<SceneAsset>(path) == null)
+			{
+				if (_window != null)
+					_window.ShowNotification(new GUIContent("Cannot play missing scene (Deleted)."));
+				return;
+			}
+
 			if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
 				return;
 
+			if (_rememberStartupScene)
+			{
+				_startupScenePath = SceneManager.GetActiveScene().path;
+				_pendingStartupRestore = !string.IsNullOrEmpty(_startupScenePath)
+					&& !string.Equals(_startupScenePath, path, StringComparison.OrdinalIgnoreCase);
+				SavePreferences();
+			}
+
 			EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+			RegisterRecent(path);
+			EditorApplication.delayCall += () =>
+			{
+				if (!EditorApplication.isPlayingOrWillChangePlaymode)
+					EditorApplication.isPlaying = true;
+			};
+		}
+
+		private static void OnPlayModeStateChanged(PlayModeStateChange state)
+		{
+			if (state != PlayModeStateChange.EnteredEditMode)
+				return;
+
+			if (!_rememberStartupScene || !_pendingStartupRestore || string.IsNullOrEmpty(_startupScenePath))
+				return;
+
+			if (string.Equals(SceneManager.GetActiveScene().path, _startupScenePath, StringComparison.OrdinalIgnoreCase))
+			{
+				_pendingStartupRestore = false;
+				SavePreferences();
+				return;
+			}
+
+			if (AssetDatabase.LoadAssetAtPath<SceneAsset>(_startupScenePath) == null)
+			{
+				_pendingStartupRestore = false;
+				SavePreferences();
+				return;
+			}
+
+			if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+				return;
+
+			EditorSceneManager.OpenScene(_startupScenePath, OpenSceneMode.Single);
+			RegisterRecent(_startupScenePath);
+			_pendingStartupRestore = false;
+			SavePreferences();
 		}
 
 		private static void DeleteScene(string path)
@@ -346,6 +510,10 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 					continue;
 
 				bool isMissing = AssetDatabase.LoadAssetAtPath<SceneAsset>(path) == null;
+				bool isReadOnly = !isMissing && IsSceneReadOnly(path);
+				if (_hideReadOnlyScenes && isReadOnly)
+					continue;
+
 				bool foundInBuild = buildLookup.TryGetValue(path, out EditorBuildSettingsScene buildScene);
 				yield return new SceneEntry
 				{
@@ -353,7 +521,9 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 					SceneName = Path.GetFileNameWithoutExtension(path),
 					IsInBuildSettings = foundInBuild,
 					IsEnabledInBuildSettings = foundInBuild && buildScene.enabled,
-					IsMissing = isMissing
+					IsMissing = isMissing,
+					IsReadOnly = isReadOnly,
+					IsFavorite = FavoriteScenes.Contains(path)
 				};
 			}
 		}
@@ -381,6 +551,99 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			return source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
 		}
 
+		private static void EnsureGuiContentInitialized()
+		{
+			if (_playSceneContent == null)
+				_playSceneContent = EditorGUIUtility.IconContent("PlayButton");
+
+			if (_readOnlyContent == null)
+				_readOnlyContent = EditorGUIUtility.IconContent("LockIcon-On");
+		}
+
+		private static bool IsSceneReadOnly(string assetPath)
+		{
+			if (string.IsNullOrEmpty(assetPath))
+				return false;
+
+			try
+			{
+				bool isLockedByProvider = !AssetDatabase.IsOpenForEdit(assetPath, StatusQueryOptions.UseCachedIfPossible);
+
+				string projectRoot = Directory.GetParent(Application.dataPath).FullName;
+				string absolutePath = Path.GetFullPath(Path.Combine(projectRoot, assetPath));
+
+				if (!File.Exists(absolutePath))
+					return isLockedByProvider;
+
+				FileAttributes attributes = File.GetAttributes(absolutePath);
+				bool hasReadOnlyAttribute = (attributes & FileAttributes.ReadOnly) != 0;
+				return isLockedByProvider || hasReadOnlyAttribute;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private static void SyncHideReadOnlyPreference()
+		{
+			bool prefValue = EditorPrefs.GetBool(HideReadOnlyPrefKey, false);
+			if (prefValue == _hideReadOnlyScenes)
+				return;
+
+			_hideReadOnlyScenes = prefValue;
+			MarkDirty();
+		}
+
+		private static void SetFavorite(string path, bool isFavorite)
+		{
+			if (string.IsNullOrEmpty(path))
+				return;
+
+			if (isFavorite)
+				FavoriteScenes.Add(path);
+			else
+				FavoriteScenes.Remove(path);
+
+			SavePreferences();
+			MarkDirty();
+		}
+
+		private static void RegisterRecent(string path)
+		{
+			if (string.IsNullOrEmpty(path))
+				return;
+
+			RecentScenes.RemoveAll(item => string.Equals(item, path, StringComparison.OrdinalIgnoreCase));
+			RecentScenes.Insert(0, path);
+
+			if (RecentScenes.Count > MaxRecentScenes)
+				RecentScenes.RemoveRange(MaxRecentScenes, RecentScenes.Count - MaxRecentScenes);
+
+			SavePreferences();
+			MarkDirty();
+		}
+
+		private static void LoadPathCollection(string value, ICollection<string> target)
+		{
+			target.Clear();
+			if (string.IsNullOrEmpty(value))
+				return;
+
+			string[] parts = value.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+			for (int index = 0; index < parts.Length; index++)
+			{
+				string path = parts[index].Trim();
+				if (!string.IsNullOrEmpty(path))
+					target.Add(path);
+			}
+		}
+
+		private static string SerializePathCollection(IEnumerable<string> values)
+		{
+			return string.Join("|", values.Where(value => !string.IsNullOrEmpty(value)).Distinct(StringComparer.OrdinalIgnoreCase));
+		}
+
 		private static void MarkDirty()
 		{
 			_isDirty = true;
@@ -391,6 +654,13 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		private static void SavePreferences()
 		{
 			EditorPrefs.SetInt(SourcePrefKey, (int)_sceneSource);
+			EditorPrefs.SetBool(HideReadOnlyPrefKey, _hideReadOnlyScenes);
+			EditorPrefs.SetBool(RememberStartupScenePrefKey, _rememberStartupScene);
+			EditorPrefs.SetBool(SetActiveAfterAdditivePrefKey, _setActiveAfterAdditive);
+			EditorPrefs.SetString(StartupScenePathPrefKey, _startupScenePath ?? string.Empty);
+			EditorPrefs.SetBool(PendingStartupRestorePrefKey, _pendingStartupRestore);
+			EditorPrefs.SetString(FavoriteScenesPrefKey, SerializePathCollection(FavoriteScenes));
+			EditorPrefs.SetString(RecentScenesPrefKey, SerializePathCollection(RecentScenes));
 		}
 
 		private static void LoadPreferences()
@@ -400,6 +670,15 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 				value = 0;
 
 			_sceneSource = (SceneSource)value;
+			_hideReadOnlyScenes = EditorPrefs.GetBool(HideReadOnlyPrefKey, false);
+			_rememberStartupScene = EditorPrefs.GetBool(RememberStartupScenePrefKey, true);
+			_setActiveAfterAdditive = EditorPrefs.GetBool(SetActiveAfterAdditivePrefKey, true);
+			_startupScenePath = EditorPrefs.GetString(StartupScenePathPrefKey, string.Empty);
+			_pendingStartupRestore = EditorPrefs.GetBool(PendingStartupRestorePrefKey, false);
+
+			LoadPathCollection(EditorPrefs.GetString(FavoriteScenesPrefKey, string.Empty), FavoriteScenes);
+			RecentScenes.Clear();
+			LoadPathCollection(EditorPrefs.GetString(RecentScenesPrefKey, string.Empty), RecentScenes);
 		}
 		#endregion
 	}
