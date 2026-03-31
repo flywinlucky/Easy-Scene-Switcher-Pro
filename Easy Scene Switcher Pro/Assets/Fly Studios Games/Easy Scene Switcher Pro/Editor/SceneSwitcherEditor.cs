@@ -57,8 +57,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 
 		#region Menu
 		[MenuItem("Tools/Easy Scene Switcher Pro/Open Window", priority = 10)]
-		[MenuItem("Window/Easy Scene Switcher Pro/Open Window", priority = 10)]
-		private static void OpenWindow()
+ 		private static void OpenWindow()
 		{
 			_window = GetWindow<EasySceneSwitcherWindow>("Easy Scene Switcher Pro");
 			_window.minSize = new Vector2(340f, 240f);

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+#if UNITY_6000_0_OR_NEWER
+using UnityEditor.Toolbars;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -22,6 +25,10 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		private const string RootFieldName = "m_Root";
 		private const string ContainerName = "EasySceneSwitcherToolbarContainer";
 		private const float DefaultVerticalOffset = 1f;
+#if UNITY_6000_0_OR_NEWER
+		private const string SourceElementId = "EasySceneSwitcherPro/Toolbar/Source";
+		private const string SceneElementId = "EasySceneSwitcherPro/Toolbar/Scene";
+#endif
 
 		private const float SourceWidth = 52f;
 		private const float MinScenePopupWidth = 90f;
@@ -70,8 +77,12 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			_isToolbarEnabled = true;
 			SavePreferences();
 			MarkDirty();
+			#if UNITY_6000_0_OR_NEWER
+			RefreshToolbarElements();
+			#else
 			EnsureToolbarInjected();
 			UpdateOverlayPosition();
+			#endif
 		}
 
 		[MenuItem("Tools/Easy Scene Switcher Pro/Settings/Toolbar Scene Switcher/Off", true)]
@@ -85,7 +96,11 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		{
 			_isToolbarEnabled = false;
 			SavePreferences();
+			#if UNITY_6000_0_OR_NEWER
+			RefreshToolbarElements();
+			#else
 			RemoveInjectedToolbarContainer();
+			#endif
 		}
 		#endregion
 
@@ -109,12 +124,20 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		{
 			LoadPreferences();
 
+			#if UNITY_6000_0_OR_NEWER
+			EditorApplication.projectChanged += OnProjectChanged;
+			EditorBuildSettings.sceneListChanged += OnBuildSettingsSceneListChanged;
+			EditorSceneManager.activeSceneChangedInEditMode += OnActiveSceneChanged;
+			RefreshToolbarElements();
+			#else
 			EditorApplication.update += OnEditorUpdate;
 			EditorApplication.projectChanged += MarkDirty;
 			EditorBuildSettings.sceneListChanged += MarkDirty;
 			EditorSceneManager.activeSceneChangedInEditMode += OnActiveSceneChanged;
+			#endif
 		}
 
+		#if !UNITY_6000_0_OR_NEWER
 		private static void OnEditorUpdate()
 		{
 			if (!_isToolbarEnabled)
@@ -126,15 +149,123 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			EnsureToolbarInjected();
 			UpdateOverlayPosition();
 		}
+		#endif
 
 		private static void OnActiveSceneChanged(Scene oldScene, Scene newScene)
 		{
+			#if UNITY_6000_0_OR_NEWER
+			RefreshToolbarElements();
+			#else
 			if (_toolbarContainer != null)
 				_toolbarContainer.MarkDirtyRepaint();
+			#endif
 		}
+
+		#if UNITY_6000_0_OR_NEWER
+		private static void OnProjectChanged()
+		{
+			MarkDirty();
+			RefreshToolbarElements();
+		}
+
+		private static void OnBuildSettingsSceneListChanged()
+		{
+			MarkDirty();
+			RefreshToolbarElements();
+		}
+		#endif
+		#endregion
+
+		#region Unity 6 Toolbar Elements
+		#if UNITY_6000_0_OR_NEWER
+		[MainToolbarElement(SourceElementId, defaultDockPosition = MainToolbarDockPosition.Middle)]
+		public static MainToolbarElement CreateSourceElement()
+		{
+			GUIContent content = _sceneSource == SceneSource.BuildSettings ? SourceBuildContent : SourceAllContent;
+			return new MainToolbarButton(new MainToolbarContent(content.text, content.tooltip), ShowSourceMenu);
+		}
+
+		[MainToolbarElement(SceneElementId, defaultDockPosition = MainToolbarDockPosition.Middle)]
+		public static MainToolbarElement CreateSceneElement()
+		{
+			RefreshSceneCacheIfNeeded();
+
+			string label = GetCurrentSceneToolbarLabel();
+			string tooltip = EditorApplication.isPlayingOrWillChangePlaymode
+				? "Scene switching is disabled in Play Mode"
+				: "Select scene";
+
+			return new MainToolbarButton(new MainToolbarContent(label, tooltip), ShowSceneMenu);
+		}
+
+		private static void ShowSourceMenu()
+		{
+			GenericMenu menu = new GenericMenu();
+			menu.AddItem(new GUIContent("Build Settings"), _sceneSource == SceneSource.BuildSettings, () => SetSceneSource(SceneSource.BuildSettings));
+			menu.AddItem(new GUIContent("All Project"), _sceneSource == SceneSource.AllProject, () => SetSceneSource(SceneSource.AllProject));
+			menu.ShowAsContext();
+		}
+
+		private static void ShowSceneMenu()
+		{
+			if (EditorApplication.isPlayingOrWillChangePlaymode)
+			{
+				ShowToolbarNotification("Scene switching is disabled in Play Mode.");
+				return;
+			}
+
+			RefreshSceneCacheIfNeeded();
+			if (SceneCache.Count == 0)
+			{
+				ShowToolbarNotification("No scenes found for selected source.");
+				return;
+			}
+
+			int currentIndex = GetActiveSceneIndex();
+			GenericMenu menu = new GenericMenu();
+
+			for (int index = 0; index < SceneCache.Count; index++)
+			{
+				SceneItem scene = SceneCache[index];
+				string title = scene.IsMissing ? $"{scene.Name} (Deleted)" : scene.Name;
+				bool isCurrent = index == currentIndex;
+
+				if (scene.IsMissing)
+				{
+					menu.AddDisabledItem(new GUIContent(title), isCurrent);
+					continue;
+				}
+
+				string path = scene.Path;
+				menu.AddItem(new GUIContent(title), isCurrent, () => OpenScene(path));
+			}
+
+			menu.ShowAsContext();
+		}
+
+		private static string GetCurrentSceneToolbarLabel()
+		{
+			if (SceneCache.Count == 0)
+				return NoScenesContent.text;
+
+			int currentIndex = GetActiveSceneIndex();
+			if (currentIndex < 0 || currentIndex >= SceneCache.Count)
+				return "Scene";
+
+			SceneItem current = SceneCache[currentIndex];
+			return current.IsMissing ? $"{current.Name} (Deleted)" : current.Name;
+		}
+
+		private static void RefreshToolbarElements()
+		{
+			MainToolbar.Refresh(SourceElementId);
+			MainToolbar.Refresh(SceneElementId);
+		}
+		#endif
 		#endregion
 
 		#region Injection
+		#if !UNITY_6000_0_OR_NEWER
 		private static void EnsureToolbarInjected()
 		{
 			if (ToolbarType == null)
@@ -267,6 +398,7 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 			_toolbarContainer.style.left = targetLeft;
 			_toolbarContainer.style.top = centeredTop + DefaultVerticalOffset;
 		}
+		#endif
 		#endregion
 
 		#region GUI
@@ -439,8 +571,12 @@ namespace FlyStudiosGames.EasySceneSwitcherPro.Editor
 		private static void MarkDirty()
 		{
 			_isDirty = true;
+			#if UNITY_6000_0_OR_NEWER
+			RefreshToolbarElements();
+			#else
 			if (_toolbarContainer != null)
 				_toolbarContainer.MarkDirtyRepaint();
+			#endif
 		}
 
 		private static void ShowToolbarNotification(string message)
