@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/New Menu.unity
+    guid: 139a7c1336fe64045ad51e8249b0ee8c
+  - enabled: 1
+    path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/New System.unity
+    guid: 410717e324a6df14c950584fa6b69fe9
   m_configObjects: {}

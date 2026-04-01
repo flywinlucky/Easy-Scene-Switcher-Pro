@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 44055f770d30ac64a81fd7b00ae5faf7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 222284
+  packageName: Easy Scene Switcher Pro
+  packageVersion: 1.1
+  assetPath: Assets/Fly Studios Games/Easy Scene Switcher Pro/Editor/SceneSwitcherToolbar.cs
+  uploadId: 889360
