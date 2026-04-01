@@ -242,3 +242,265 @@ Received Import Request.
 Number of updated assets reloaded before import = 0
 Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/README.pdf using Guid(ba0aa488a53b2f64bb655708be802f41) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c57336bad7b1877468e6ce6e04823957') in 0.077457 seconds 
 Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 70.316782 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Editor/SceneSwitcherEditor.cs
+  artifactKey: Guid(559f9b43f6c5a3743807b589e9d1ac79) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Editor/SceneSwitcherEditor.cs using Guid(559f9b43f6c5a3743807b589e9d1ac79) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '125a22a88b473890b1c3916a16c331b2') in 0.037561 seconds 
+Number of asset objects unloaded after import = 0
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.007133 seconds.
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.50 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+[Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Completed reload, in  1.669 seconds
+Domain Reload Profiling:
+	ReloadAssembly (1670ms)
+		BeginReloadAssembly (184ms)
+			ExecutionOrderSort (0ms)
+			DisableScriptedObjects (5ms)
+			BackupInstance (0ms)
+			ReleaseScriptingObjects (0ms)
+			CreateAndSetChildDomain (40ms)
+		EndReloadAssembly (1369ms)
+			LoadAssemblies (165ms)
+			RebuildTransferFunctionScriptingTraits (0ms)
+			SetupTypeCache (319ms)
+			ReleaseScriptCaches (1ms)
+			RebuildScriptCaches (44ms)
+			SetupLoadedEditorAssemblies (833ms)
+				LogAssemblyErrors (0ms)
+				InitializePlatformSupportModulesInManaged (16ms)
+				SetLoadedEditorAssemblies (0ms)
+				RefreshPlugins (1ms)
+				BeforeProcessingInitializeOnLoad (56ms)
+				ProcessInitializeOnLoadAttributes (713ms)
+				ProcessInitializeOnLoadMethodAttributes (44ms)
+				AfterProcessingInitializeOnLoad (2ms)
+				EditorAssembliesLoaded (0ms)
+			ExecutionOrderSort2 (0ms)
+			AwakeInstancesAfterBackupRestoration (7ms)
+Platform modules already initialized, skipping
+Refreshing native plugins compatible for Editor in 0.55 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3348 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 21 unused Assets / (22.0 KB). Loaded Objects now: 3835.
+Memory consumption went from 115.5 MB to 115.5 MB.
+Total: 4.234700 ms (FindLiveObjects: 0.260500 ms CreateObjectMapping: 0.218000 ms MarkObjects: 3.715100 ms  DeleteObjects: 0.040100 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+  custom:CustomObjectIndexerAttribute: bc11b3a6c3213fcdd17b65e7da85e133 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+========================================================================
+Received Import Request.
+  Time since last request: 400.250041 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.html
+  artifactKey: Guid(7f35078ddafad214494c3d02fae1ab17) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.html using Guid(7f35078ddafad214494c3d02fae1ab17) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd402fb4f6e2e84f3412760135ad02e8c') in 0.049722 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/EASY_SCENE_SWITCHER_PRO_DOCUMENTATION.html
+  artifactKey: Guid(17bdb9a93842ec14baff66e7ff1376b6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/EASY_SCENE_SWITCHER_PRO_DOCUMENTATION.html using Guid(17bdb9a93842ec14baff66e7ff1376b6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0ea52bcc38d78e17048ab6aea61cd4de') in 0.010349 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 0.000049 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md
+  artifactKey: Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md using Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3cc89a28fb4c2f826e24201f27e54ce4') in 0.042924 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 51.718457 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf
+  artifactKey: Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf using Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a1135f5d7147c7fa67bf72953b6d59cb') in 0.006084 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 23.077641 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/EASY_SCENE_SWITCHER_PRO_DOCUMENTATION.pdf
+  artifactKey: Guid(a88a6f0e0fe109b4da86198692de07bd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/EASY_SCENE_SWITCHER_PRO_DOCUMENTATION.pdf using Guid(a88a6f0e0fe109b4da86198692de07bd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c9b40d0be996d683b009f1dcdf3d5266') in 0.005261 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 17.072467 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.pdf
+  artifactKey: Guid(1d5b177c92ccb1a47bebaeba7ad037c4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.pdf using Guid(1d5b177c92ccb1a47bebaeba7ad037c4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '250af92ac5aa6be207605677e43581b5') in 0.004871 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 201.193777 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/Web
+  artifactKey: Guid(e8b75df46a32ec04992134a011f80c8f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/Web using Guid(e8b75df46a32ec04992134a011f80c8f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '65333a06a8ae5bb9ec1d621c959376cd') in 0.013973 seconds 
+Number of asset objects unloaded after import = 0
+========================================================================
+Received Import Request.
+  Time since last request: 4581.200109 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf
+  artifactKey: Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf using Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5652865602cb600f7775e4232ba96312') in 0.038468 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 5.708077 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/EASY_SCENE_SWITCHER_PRO_DOCUMENTATION.pdf
+  artifactKey: Guid(a88a6f0e0fe109b4da86198692de07bd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/EASY_SCENE_SWITCHER_PRO_DOCUMENTATION.pdf using Guid(a88a6f0e0fe109b4da86198692de07bd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'adfdac7fe939f7dd7f4f8505a74d8931') in 0.005485 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 38.170907 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.pdf
+  artifactKey: Guid(1d5b177c92ccb1a47bebaeba7ad037c4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.pdf using Guid(1d5b177c92ccb1a47bebaeba7ad037c4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c6f62b186c88fc1fd33d7a543205a467') in 0.008116 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 22.522334 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.md
+  artifactKey: Guid(8b9a1bd42999e6d4db52b98292e90908) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/USER_GUIDE.md using Guid(8b9a1bd42999e6d4db52b98292e90908) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9e67468b67105cb86655f72824a7c55b') in 0.005382 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 50.357949 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.html
+  artifactKey: Guid(61c46b487952e4440a06a4b23ef3696e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.html using Guid(61c46b487952e4440a06a4b23ef3696e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5afd3d85950ac6b5ad16fec4b91be212') in 0.004034 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 3.592101 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md
+  artifactKey: Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md using Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '32cf6fd9b454ede0bf39e473c88d38f9') in 0.003720 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 688.613248 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf
+  artifactKey: Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf using Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cd4faa26a55f1067687453a09bee0dd0') in 0.010521 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 49.732977 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md
+  artifactKey: Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md using Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '12eaffadb493c0183502833c8006a2e8') in 0.004797 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 361.463109 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md
+  artifactKey: Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md using Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3f3789e9898d1cc2a7d70c55c9836b17') in 0.004618 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 423.408446 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf
+  artifactKey: Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf using Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'af8ec0796508970f9ba6b8fc39ea0716') in 0.016062 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 151.723643 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf
+  artifactKey: Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.pdf using Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '087e69f6419ad83779b0c0d43868aad0') in 0.011141 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 14.520245 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md
+  artifactKey: Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/ASSET_STORE_DOCUMENTATION.md using Guid(9fb07ca1f1a3e2a43a8811c6b5e0ebee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '28e9fce4c3cefdfbb6a0f9ff316dbb72') in 0.004994 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 10.937663 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/README.pdf
+  artifactKey: Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Documentation/README.pdf using Guid(771dd6963c76ba34991ea584a594f042) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9e12ef256c2fbf7b3ac0365ea93238bd') in 0.011221 seconds 
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 77.963732 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Demo.unity
+  artifactKey: Guid(1708b43d0ef303346baef4bec93567b2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Demo.unity using Guid(1708b43d0ef303346baef4bec93567b2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9696e09323ef501c339c5eea5c262acf') in 0.011651 seconds 
+Number of asset objects unloaded after import = 0
+========================================================================
+Received Import Request.
+  Time since last request: 0.727032 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Old Shop.unity
+  artifactKey: Guid(9b9283327ec62064b8c6dae383b1e5f5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Old Shop.unity using Guid(9b9283327ec62064b8c6dae383b1e5f5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dfa7853c132b828b328bd0a428c67c61') in 0.014777 seconds 
+Number of asset objects unloaded after import = 0
+========================================================================
+Received Import Request.
+  Time since last request: 2.106864 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Test.unity
+  artifactKey: Guid(c55fa8c90e689de4ab7603279e3e0db7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Test.unity using Guid(c55fa8c90e689de4ab7603279e3e0db7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8ed58be13e325716957cc4e8122070a0') in 0.015660 seconds 
+Number of asset objects unloaded after import = 0
+========================================================================
+Received Import Request.
+  Time since last request: 0.743422 seconds.
+  path: Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Shop.unity
+  artifactKey: Guid(1bfb2f039ae041b46b4806fe83eb5599) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Fly Studios Games/Easy Scene Switcher Pro/Demo Scenes/Shop.unity using Guid(1bfb2f039ae041b46b4806fe83eb5599) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3addebf1460efe32856f496147723ff8') in 0.014405 seconds 
+Number of asset objects unloaded after import = 0
